@@ -25,6 +25,7 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   transition: background-image 1s ease-in-out;
+  padding: 2rem 0;
 }
 
 #app-container {
@@ -94,17 +95,20 @@ body {
 /* Search Bar & Suggestions */
 #search-form {
     width: 100%;
+    position: relative;
     display: flex;
+    align-items: center;
 }
 
 #city-input {
-    flex-grow: 1;
+    width: 100%;
     background: transparent;
     border: none;
     outline: none;
     color: var(--lg-text);
     font-size: 1.1rem;
     font-family: 'Poppins', sans-serif;
+    padding-right: 2.5rem; /* Space for the icon */
 }
 
 #city-input::placeholder {
@@ -112,12 +116,15 @@ body {
 }
 
 #search-form button {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
     background: none;
     border: none;
     color: var(--lg-text);
     font-size: 1.2rem;
     cursor: pointer;
-    padding-left: 1rem;
     transition: transform 0.2s ease;
 }
 
@@ -220,3 +227,91 @@ body {
 .detail i {
     font-size: 1.2rem;
 }
+
+.detail span:nth-child(2) {
+    font-weight: 600;
+}
+
+.detail span:nth-child(3) {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* Hourly & Daily Forecasts */
+#hourly-container, #daily-container {
+    padding: 1rem;
+}
+
+#hourly-content, #daily-content {
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+}
+
+#hourly-content h2, #daily-content h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    width: 100%;
+    text-align: left;
+    padding-left: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.hourly-forecast {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    scrollbar-width: none; /* Firefox */
+}
+
+.hourly-forecast::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+}
+
+.hour {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 60px;
+}
+
+.hour i {
+    font-size: 1.5rem;
+}
+
+.daily-forecast {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
+}
+
+.day {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 1rem;
+}
+
+.day span:first-child {
+    font-weight: 600;
+}
+
+.day i {
+    font-size: 1.5rem;
+}
+
+.day-temps {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.day-temps span:last-child {
+    opacity: 0.7;
+}
+
+/* Mobile Responsiveness */

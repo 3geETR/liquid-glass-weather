@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchForm = document.getElementById('search-form');
     const cityInput = document.getElementById('city-input');
     const weatherContent = document.getElementById('weather-content');
+    const hourlyContent = document.getElementById('hourly-content');
+    const dailyContent = document.getElementById('daily-content');
     const suggestionsWrapper = document.getElementById('suggestions-wrapper');
     const glassContainers = document.querySelectorAll('.glass-container');
 
@@ -43,10 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 cityName = geoData.results[0].name;
             }
             
-            const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m`);
+            const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`);
             const weatherData = await weatherResponse.json();
             
             displayWeather(weatherData, cityName);
+            displayHourlyForecast(weatherData);
+            displayDailyForecast(weatherData);
             updateBackground(weatherData.current.weather_code);
 
         } catch (error) {
@@ -98,6 +102,62 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
     };
+
+    const displayHourlyForecast = (data) => {
+        const { time, temperature_2m, weather_code } = data.hourly;
+        const now = new Date();
+        const currentHour = now.getHours();
+        let forecastHtml = '<h2>Hourly Forecast</h2><div class="hourly-forecast">';
+
+        // Find the index of the current hour
+        const startIndex = time.findIndex(t => new Date(t).getHours() === currentHour);
+        if (startIndex === -1) {
+            hourlyContent.innerHTML = '<p>Could not get hourly forecast.</p>';
+            return;
+        }
+
+        for (let i = startIndex; i < startIndex + 24 && i < time.length; i++) {
+            const date = new Date(time[i]);
+            const hour = date.getHours();
+            const temp = Math.round(temperature_2m[i]);
+            const { icon } = getWeatherInfo(weather_code[i]);
+            forecastHtml += `
+                <div class="hour">
+                    <span>${hour}:00</span>
+                    <i class="${icon}"></i>
+                    <span>${temp}&deg;C</span>
+                </div>
+            `;
+        }
+        forecastHtml += '</div>';
+        hourlyContent.innerHTML = forecastHtml;
+    };
+
+    const displayDailyForecast = (data) => {
+        const { time, weather_code, temperature_2m_max, temperature_2m_min } = data.daily;
+        let forecastHtml = '<h2>Daily Forecast</h2><div class="daily-forecast">';
+
+        for (let i = 1; i < time.length; i++) {
+            const date = new Date(time[i]);
+            const day = date.toLocaleDateString('en-US', { weekday: 'short' });
+            const maxTemp = Math.round(temperature_2m_max[i]);
+            const minTemp = Math.round(temperature_2m_min[i]);
+            const { icon } = getWeatherInfo(weather_code[i]);
+            forecastHtml += `
+                <div class="day">
+                    <span>${day}</span>
+                    <i class="${icon}"></i>
+                    <div class="day-temps">
+                        <span>${maxTemp}&deg;</span>
+                        <span>${minTemp}&deg;</span>
+                    </div>
+                </div>
+            `;
+        }
+        forecastHtml += '</div>';
+        dailyContent.innerHTML = forecastHtml;
+    };
+
 
     // --- Mappers and Event Handlers ---
     const getWeatherInfo = (code) => {
