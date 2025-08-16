@@ -1,0 +1,180 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+  --lg-bg-color: rgba(0, 0, 0, 0.2);
+  --lg-highlight: rgba(255, 255, 255, 0.4);
+  --lg-text: #ffffff;
+  --lg-red: #fb4268;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  font-family: 'Poppins', sans-serif;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 1s ease-in-out;
+}
+
+#app-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 90%;
+  max-width: 450px;
+  justify-content: center;
+}
+
+.glass-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border-radius: 2rem;
+  overflow: hidden;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
+  color: var(--lg-text);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.5);
+}
+
+.glass-filter,
+.glass-overlay,
+.glass-specular {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.glass-filter {
+  z-index: 0;
+  backdrop-filter: blur(8px);
+  filter: url(#lensFilter) saturate(120%) brightness(1.1);
+}
+
+.glass-overlay {
+  z-index: 1;
+  background: var(--lg-bg-color);
+}
+
+.glass-specular {
+  z-index: 2;
+  box-shadow: inset 1px 1px 0 var(--lg-highlight),
+    inset 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+.glass-content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.5rem;
+  text-align: center;
+}
+
+/* Search Bar */
+#search-form {
+    width: 100%;
+    display: flex;
+}
+
+#city-input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--lg-text);
+    font-size: 1.1rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+#city-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+#search-form button {
+    background: none;
+    border: none;
+    color: var(--lg-text);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding-left: 1rem;
+    transition: transform 0.2s ease;
+}
+
+#search-form button:hover {
+    transform: scale(1.1);
+}
+
+/* Weather Display */
+#weather-container {
+    min-height: 250px;
+}
+
+#weather-content {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+#loading p, #error-message p {
+    font-size: 1.1rem;
+    padding: 1rem;
+}
+
+.weather-main {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.weather-icon {
+    font-size: 4rem;
+}
+
+.temperature {
+    font-size: 3.5rem;
+    font-weight: 600;
+}
+
+.city-name {
+    font-size: 1.75rem;
+    font-weight: 600;
+}
+
+.weather-description {
+    font-size: 1.2rem;
+    text-transform: capitalize;
+}
+
+.weather-details {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--lg-highlight);
+}
+
+.detail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.detail i {
+    font-size: 1.2rem;
+}

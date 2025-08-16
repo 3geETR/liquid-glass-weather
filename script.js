@@ -1,0 +1,122 @@
+
+document.addEventListener('DOMContentLoaded', () => {
+    const searchForm = document.getElementById('search-form');
+    const cityInput = document.getElementById('city-input');
+    const weatherContent = document.getElementById('weather-content');
+    const glassContainers = document.querySelectorAll('.glass-container');
+
+    const defaultCity = 'London';
+
+    // --- Weather Data Fetching ---
+    const fetchWeather = async (city) => {
+        weatherContent.innerHTML = `<div id="loading"><p>Loading...</p></div>`;
+
+        try {
+            // 1. Get coordinates for the city
+            const geoResponse = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=en&format=json`);
+            const geoData = await geoResponse.json();
+            if (!geoData.results) {
+                throw new Error('City not found. Please try again.');
+            }
+            const { latitude, longitude, name } = geoData.results[0];
+
+            // 2. Get weather for the coordinates
+            const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m`);
+            const weatherData = await weatherResponse.json();
+            
+            displayWeather(weatherData, name);
+            updateBackground(weatherData.current.weather_code);
+
+        } catch (error) {
+            weatherContent.innerHTML = `<div id="error-message"><p>${error.message}</p></div>`;
+        }
+    };
+
+    // --- Display Logic ---
+    const displayWeather = (data, cityName) => {
+        const { temperature_2m, weather_code, relative_humidity_2m, wind_speed_10m } = data.current;
+        const { icon, description } = getWeatherInfo(weather_code);
+
+        weatherContent.innerHTML = `
+            <div class="weather-main">
+                <i class="weather-icon ${icon}"></i>
+                <div class="temperature">${Math.round(temperature_2m)}&deg;C</div>
+            </div>
+            <div class="city-name">${cityName}</div>
+            <div class="weather-description">${description}</div>
+            <div class="weather-details">
+                <div class="detail">
+                    <i class="fa-solid fa-water"></i>
+                    <span>${relative_humidity_2m}%</span>
+                    <span>Humidity</span>
+                </div>
+                <div class="detail">
+                    <i class="fa-solid fa-wind"></i>
+                    <span>${wind_speed_10m} km/h</span>
+                    <span>Wind</span>
+                </div>
+            </div>
+        `;
+    };
+
+    // --- Mappers and Converters ---
+    const getWeatherInfo = (code) => {
+        const weatherMap = {
+            0: { icon: 'fa-solid fa-sun', description: 'Clear sky' },
+            1: { icon: 'fa-solid fa-cloud-sun', description: 'Mainly clear' },
+            2: { icon: 'fa-solid fa-cloud', description: 'Partly cloudy' },
+            3: { icon: 'fa-solid fa-cloud', description: 'Overcast' },
+            45: { icon: 'fa-solid fa-smog', description: 'Fog' },
+            48: { icon: 'fa-solid fa-smog', description: 'Depositing rime fog' },
+            51: { icon: 'fa-solid fa-cloud-rain', description: 'Light drizzle' },
+            53: { icon: 'fa-solid fa-cloud-rain', description: 'Moderate drizzle' },
+            55: { icon: 'fa-solid fa-cloud-rain', description: 'Dense drizzle' },
+            61: { icon: 'fa-solid fa-cloud-showers-heavy', description: 'Slight rain' },
+            63: { icon: 'fa-solid fa-cloud-showers-heavy', description: 'Moderate rain' },
+            65: { icon: 'fa-solid fa-cloud-showers-heavy', description: 'Heavy rain' },
+            80: { icon: 'fa-solid fa-cloud-showers-heavy', description: 'Slight rain showers' },
+            81: { icon: 'fa-solid fa-cloud-showers-heavy', description: 'Moderate rain showers' },
+            82: { icon: 'fa-solid fa-cloud-showers-heavy', description: 'Violent rain showers' },
+            95: { icon: 'fa-solid fa-cloud-bolt', description: 'Thunderstorm' },
+        };
+        return weatherMap[code] || { icon: 'fa-solid fa-question', description: 'Unknown' };
+    };
+
+    const updateBackground = (code) => {
+        let bgImage = 'default.jpg'; // A default background
+        if ([0, 1].includes(code)) bgImage = 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0';
+        if ([2, 3].includes(code)) bgImage = 'https://images.unsplash.com/photo-1495312040802-a929cd14a6ab';
+        if (code >= 51 && code <= 82) bgImage = 'https://images.unsplash.com/photo-1519692933481-e162a57d6721';
+        if (code >= 95) bgImage = 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cf1';
+        if ([45, 48].includes(code)) bgImage = 'https://images.unsplash.com/photo-1487621167305-5d248087c883';
+        
+        document.body.style.backgroundImage = `url('${bgImage}')`;
+    };
+
+    // --- Event Listeners ---
+    searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const city = cityInput.value.trim();
+        if (city) {
+            fetchWeather(city);
+            cityInput.value = '';
+        }
+    });
+
+    glassContainers.forEach(container => {
+        container.addEventListener('mousemove', (e) => {
+            const rect = container.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const rotateX = (y / rect.height - 0.5) * -10;
+            const rotateY = (x / rect.width - 0.5) * 10;
+            container.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+        container.addEventListener('mouseleave', () => {
+            container.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+        });
+    });
+
+    // --- Initial Load ---
+    fetchWeather(defaultCity);
+});
