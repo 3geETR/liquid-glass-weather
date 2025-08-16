@@ -42,10 +42,16 @@ body {
   align-items: center;
   background: transparent;
   border-radius: 2rem;
-  overflow: hidden;
+  overflow: visible; /* Allow suggestions to overflow */
   box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
   color: var(--lg-text);
+  transform-origin: center;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.5);
+}
+
+#search-container {
+    overflow: visible;
+    z-index: 10;
 }
 
 .glass-filter,
@@ -54,6 +60,7 @@ body {
   position: absolute;
   inset: 0;
   border-radius: inherit;
+  pointer-events: none; /* Allow clicks to pass through to content */
 }
 
 .glass-filter {
@@ -84,7 +91,7 @@ body {
   text-align: center;
 }
 
-/* Search Bar */
+/* Search Bar & Suggestions */
 #search-form {
     width: 100%;
     display: flex;
@@ -117,6 +124,41 @@ body {
 #search-form button:hover {
     transform: scale(1.1);
 }
+
+#suggestions-wrapper {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 100%;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+    display: none; /* Hidden by default */
+}
+
+.suggestion-item {
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+    transition: background-color 0.2s ease;
+    text-align: left;
+}
+
+.suggestion-item:hover {
+    background-color: rgba(251, 66, 104, 0.5);
+}
+
+.suggestion-item:not(:last-child) {
+    border-bottom: 1px solid var(--lg-highlight);
+}
+
+.suggestion-item .country {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-left: 0.5rem;
+}
+
 
 /* Weather Display */
 #weather-container {
