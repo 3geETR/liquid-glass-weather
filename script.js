@@ -10,6 +10,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultCity = 'London';
     let debounceTimer;
 
+    // --- Cookie handling ---
+    const setCookie = (name, value, days) => {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "") + expires + "; path=/";
+    };
+
+    const getCookie = (name) => {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    };
+
     // --- City & Weather Data Fetching ---
     const fetchSuggestions = async (query) => {
         if (query.length < 3) {
@@ -52,6 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
             displayHourlyForecast(weatherData);
             displayDailyForecast(weatherData);
             updateBackground(weatherData.current.weather_code);
+            setCookie('lastCity', cityName, 7);
+
 
         } catch (error) {
             weatherContent.innerHTML = `<div id="error-message"><p>${error.message}</p></div>`;
@@ -210,5 +234,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Initial Load ---
-    fetchWeather(defaultCity);
+    const lastCity = getCookie('lastCity');
+    fetchWeather(lastCity || defaultCity);
 });
